@@ -1,0 +1,22 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+project.build.sourceDirectory="src/"
+
+repositories {
+	mavenLocal()
+	mavenCentral()
+	maven {
+	    url 'http://repo.bodar.com/'
+	}
+}
+
+dependencies {
+	compile 'org.bitbucket.dollar:dollar:1.0-beta3'
+	compile 'org.bitbucket.dollar:dollar-lang:1.0-beta3'
+	compile 'com.googlecode.totallylazy:totallylazy:1171'
+        compile 'com.google.guava:guava:15.0'
+	testCompile 'junit:junit:4.+'
+}
+

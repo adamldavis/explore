@@ -10,9 +10,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.util.Scanner;
-import java.util.*;
-import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 
 /**
  *
@@ -30,8 +29,7 @@ public class Explore {
     public static void main(String[] args) {
         out.println("Hello, welcome to Explore version 0.0.1");
         out.println();
-        Arrays.asList("What is the name of your project?")
-                .stream()
+        Stream.generate(() -> "What is the name of your project?")
                 .map(Explore::inputString)
                 .forEach(Explore::createProject);
     }
@@ -40,8 +38,9 @@ public class Explore {
         try {
             Path p  = Paths.get(name);
             Files.createDirectory(p);
+            System.exit(0);
         } catch (IOException ex) {
-            logger.log(Level.SEVERE, ex.getMessage(), ex);
+            out.println("Please try again");
         }
         
     }

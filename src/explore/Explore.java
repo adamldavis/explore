@@ -8,8 +8,10 @@ import static java.lang.System.err;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Optional;
 
 import java.util.Scanner;
+import java.util.function.Function;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -31,18 +33,21 @@ public class Explore {
         out.println();
         Stream.generate(() -> "What is the name of your project?")
                 .map(Explore::inputString)
-                .forEach(Explore::createProject);
+                .map(Explore::createProject)
+                .filter((ex) -> !ex.isPresent())
+                .limit(1) // get first one that 
+                .forEach(x -> out.println("Done"));
     }
     
-    public static void createProject(String name) {
+    public static Optional<Exception> createProject(String name) {
         try {
             Path p  = Paths.get(name);
             Files.createDirectory(p);
-            System.exit(0);
         } catch (IOException ex) {
             out.println("Please try again");
+            return Optional.of(ex);
         }
-        
+        return Optional.empty();
     }
     
     public static int inputInt(String str) {

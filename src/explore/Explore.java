@@ -1,6 +1,7 @@
 package explore;
 
-import com.googlecode.totallylazy.Pair;
+import com.googlecode.totallylazy.Maps;
+import static com.googlecode.totallylazy.Pair.pair;
 import java.io.IOException;
 import static java.lang.System.out;
 import static java.lang.System.in;
@@ -30,16 +31,36 @@ public class Explore {
 
     static final Logger logger = Logger.getLogger(Explore.class.getName());
 
+    static final Map<Integer, Runnable> commands
+            = Maps.map(pair(1, Explore::handleCreateProject),
+                    pair(2, Explore::handleFibonacci)
+            );
+    
+    public static final String VERSION = "0.0.1";
+    public static final String HELLO_MSG = "Hello, welcome to Explore version "
+            + VERSION;
+    public static final String INITIAL_QUERY = "Enter 1 to create a project "
+            + "and 2 for Fibonacci";
+
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        out.println("Hello, welcome to Explore version 0.0.1");
+        out.println(HELLO_MSG);
         out.println();
-        inputAndDo(() -> "Enter 1 to create a project and 2 for Fibonacci",
+        inputAndDo(() -> INITIAL_QUERY,
                 Explore::inputInt, captureEx(Explore::handleInitialInput));
     }
 
+    static void handleInitialInput(int i) {
+        commands.getOrDefault(i,
+                () -> {
+                    throw new IllegalArgumentException("Unknown option:" + i);
+                }
+        ).run();
+    }
+
+    /** Captures any Exception thrown and wraps it in Optional. */
     public static <T> Function<T, Optional<Exception>> captureEx(Consumer<T> f) {
         return t -> {
             try {
@@ -49,16 +70,6 @@ public class Explore {
                 return Optional.of(e);
             }
         };
-    }
-
-    public static void handleInitialInput(int i) {
-        if (i == 1) {
-            handleCreateProject();
-        } else if (i == 2) {
-            handleFibonacci();
-        } else {
-            throw new IllegalArgumentException("Unknown option:" + i);
-        }
     }
 
     public static void handleFibonacci() {
@@ -75,8 +86,8 @@ public class Explore {
         fibMap.put(2, 1L);
         // Pair of index, fib-value
         return Stream
-                .iterate(Pair.pair(1, 1L),
-                        p -> Pair.pair(p.first() + 1,
+                .iterate(pair(1, 1L),
+                        p -> pair(p.first() + 1,
                                 fibMap.computeIfAbsent(p.first() + 1,
                                         z -> p.second() + fibMap.get(p.first() - 1))))
                 .peek(out::println)
@@ -106,6 +117,7 @@ public class Explore {
         Stream.generate(messagef)
                 .map(inputf)
                 .map(dof)
+                .peek(ex -> {if (ex.isPresent()) err(ex.get().getMessage());})
                 .filter((ex) -> !ex.isPresent())
                 .limit(1)
                 .forEach(x -> out.println("Done"));

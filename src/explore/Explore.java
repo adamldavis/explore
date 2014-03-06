@@ -1,5 +1,6 @@
 package explore;
 
+import com.googlecode.totallylazy.Pair;
 import java.io.IOException;
 import static java.lang.System.out;
 import static java.lang.System.in;
@@ -8,10 +9,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.InputMismatchException;
+import java.util.Map;
 import java.util.Optional;
 
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -60,8 +62,27 @@ public class Explore {
     }
 
     public static void handleFibonacci() {
-        inputAndDo(() -> "Please enter a positive natural number.",
-                Explore::inputInt, captureEx(n -> out.println(fibonacci(n))));
+        inputAndDo(() -> "Please enter a positive natural number (< 93).",
+                Explore::inputInt, captureEx(n
+                        -> out.println(fastfib(n))));
+    }
+
+    static final Map<Integer, Long> fibMap = new ConcurrentHashMap<>();
+
+    public static long fastfib(final int n) {
+        fibMap.put(0, 0L);
+        fibMap.put(1, 1L);
+        fibMap.put(2, 1L);
+        // Pair of index, fib-value
+        return Stream
+                .iterate(Pair.pair(1, 1L),
+                        p -> Pair.pair(p.first() + 1,
+                                fibMap.computeIfAbsent(p.first() + 1,
+                                        z -> p.second() + fibMap.get(p.first() - 1))))
+                .peek(out::println)
+                .skip(n - 1)
+                .findFirst()
+                .get().second();
     }
 
     public static long fibonacci(int n) {

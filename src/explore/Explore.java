@@ -32,6 +32,42 @@ public class Explore {
     public static void main(String[] args) {
         out.println("Hello, welcome to Explore version 0.0.1");
         out.println();
+        handleInitialInput(inputInt("Enter 1 to create a project and 2 for Fibonacci"));
+    }
+
+    public static void handleInitialInput(int i) {
+        if (i == 1) {
+            handleCreateProject();
+        } else if (i == 2) {
+            handleFibonacci();
+        } else {
+            throw new IllegalArgumentException("Unknown option:" + i);
+        }
+    }
+
+    public static void handleFibonacci() {
+        inputAndDo(() -> "Please enter a positive natural number.",
+                Explore::inputInt, Explore::attemptFibonacci);
+    }
+
+    public static Optional<Exception> attemptFibonacci(int n) {
+        try {
+            out.println(fibonacci(n));
+        } catch (Exception e) {
+            return Optional.of(e);
+        }
+        return Optional.empty();
+    }
+
+    public static long fibonacci(int n) {
+        if (n <= 1) {
+            return n;
+        } else {
+            return fibonacci(n - 1) + fibonacci(n - 2);
+        }
+    }
+
+    public static void handleCreateProject() {
         inputAndDo(() -> new String[]{
             "What is the name of your project?",
             "What is your name?",

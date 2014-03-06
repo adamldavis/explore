@@ -12,6 +12,7 @@ import java.util.Optional;
 
 import java.util.Scanner;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -31,11 +32,17 @@ public class Explore {
     public static void main(String[] args) {
         out.println("Hello, welcome to Explore version 0.0.1");
         out.println();
-        Stream.generate(() -> "What is the name of your project?")
-                .map(Explore::inputString)
-                .map(Explore::createProject)
+        inputAndDo(() -> "What is the name of your project?",
+                Explore::inputString, Explore::createProject);
+    }
+
+    private static <T> void inputAndDo(Supplier<String> messagef,
+            Function<String,T> inputf, Function<T,Optional<Exception>> dof) {
+        Stream.generate(messagef)
+                .map(inputf)
+                .map(dof)
                 .filter((ex) -> !ex.isPresent())
-                .limit(1) // get first one that 
+                .limit(1)
                 .forEach(x -> out.println("Done"));
     }
     

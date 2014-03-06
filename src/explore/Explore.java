@@ -8,9 +8,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.InputMismatchException;
 import java.util.Optional;
 
 import java.util.Scanner;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.logging.Logger;
@@ -32,7 +34,19 @@ public class Explore {
     public static void main(String[] args) {
         out.println("Hello, welcome to Explore version 0.0.1");
         out.println();
-        handleInitialInput(inputInt("Enter 1 to create a project and 2 for Fibonacci"));
+        inputAndDo(() -> "Enter 1 to create a project and 2 for Fibonacci",
+                Explore::inputInt, captureEx(Explore::handleInitialInput));
+    }
+
+    public static <T> Function<T, Optional<Exception>> captureEx(Consumer<T> f) {
+        return t -> {
+            try {
+                f.accept(t);
+                return Optional.empty();
+            } catch (Exception e) {
+                return Optional.of(e);
+            }
+        };
     }
 
     public static void handleInitialInput(int i) {
@@ -47,16 +61,7 @@ public class Explore {
 
     public static void handleFibonacci() {
         inputAndDo(() -> "Please enter a positive natural number.",
-                Explore::inputInt, Explore::attemptFibonacci);
-    }
-
-    public static Optional<Exception> attemptFibonacci(int n) {
-        try {
-            out.println(fibonacci(n));
-        } catch (Exception e) {
-            return Optional.of(e);
-        }
-        return Optional.empty();
+                Explore::inputInt, captureEx(n -> out.println(fibonacci(n))));
     }
 
     public static long fibonacci(int n) {

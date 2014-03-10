@@ -32,12 +32,9 @@ public class Explore {
 
     static final Logger logger = Logger.getLogger(Explore.class.getName());
 
-    static final Map<Integer, Runnable> commands
-            = Maps.map(pair(1, Explore::handleCreateProject),
-                    pair(2, Explore::handleFibonacci)
-            );
+    static final Map<Integer, Runnable> commands = Commands.intMap;
 
-    public static final String VERSION = "0.0.1";
+    public static final String VERSION = "0.0.22";
     public static final String HELLO_MSG = "Hello, welcome to Explore version "
             + VERSION;
     public static final String INITIAL_QUERY = "Enter 1 to create a project "

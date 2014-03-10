@@ -1,6 +1,7 @@
 package explore;
 
 import com.googlecode.totallylazy.Maps;
+import com.googlecode.totallylazy.Pair;
 import static com.googlecode.totallylazy.Pair.pair;
 import java.io.IOException;
 import static java.lang.System.out;
@@ -35,7 +36,7 @@ public class Explore {
             = Maps.map(pair(1, Explore::handleCreateProject),
                     pair(2, Explore::handleFibonacci)
             );
-    
+
     public static final String VERSION = "0.0.1";
     public static final String HELLO_MSG = "Hello, welcome to Explore version "
             + VERSION;
@@ -60,7 +61,9 @@ public class Explore {
         ).run();
     }
 
-    /** Captures any Exception thrown and wraps it in Optional. */
+    /**
+     * Captures any Exception thrown and wraps it in Optional.
+     */
     public static <T> Function<T, Optional<Exception>> captureEx(Consumer<T> f) {
         return t -> {
             try {
@@ -79,21 +82,26 @@ public class Explore {
     }
 
     static final Map<Integer, Long> fibMap = new ConcurrentHashMap<>();
-
+    
     public static long fastfib(final int n) {
         fibMap.put(0, 0L);
         fibMap.put(1, 1L);
         fibMap.put(2, 1L);
-        // Pair of index, fib-value
-        return Stream
-                .iterate(pair(1, 1L),
-                        p -> pair(p.first() + 1,
-                                fibMap.computeIfAbsent(p.first() + 1,
-                                        z -> p.second() + fibMap.get(p.first() - 1))))
-                .peek(out::println)
-                .skip(n - 1)
-                .findFirst()
-                .get().second();
+        return fastfibTail(pair(1, 1L), n).invoke();
+    }
+
+    // fibonacci using "tail recursion"
+    public static Tail<Long> fastfibTail(final Pair<Integer, Long> p, final int n) {
+        return () -> {
+            switch (n) {
+                case 1:
+                    return Tail.done(p.second());
+                default:
+                    return fastfibTail(pair(p.first() + 1,
+                            fibMap.computeIfAbsent(p.first() + 1,
+                                    x -> p.second() + fibMap.get(x - 2))), n - 1);
+            }
+        };
     }
 
     public static long fibonacci(int n) {
@@ -117,7 +125,11 @@ public class Explore {
         Stream.generate(messagef)
                 .map(inputf)
                 .map(dof)
-                .peek(ex -> {if (ex.isPresent()) err(ex.get().getMessage());})
+                .peek(ex -> {
+                    if (ex.isPresent()) {
+                        err(ex.get().getMessage());
+                    }
+                })
                 .filter((ex) -> !ex.isPresent())
                 .limit(1)
                 .forEach(x -> out.println("Done"));
